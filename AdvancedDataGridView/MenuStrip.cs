@@ -14,6 +14,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using System.Windows.Forms;
 
 namespace Zuby.ADGV
@@ -189,12 +190,18 @@ namespace Zuby.ADGV
         /// <returns></returns>
         private ImageList GetCheckListStateImages()
         {
-            ImageList images = new System.Windows.Forms.ImageList();
-            Bitmap unCheckImg = new Bitmap(16, 16);
-            Bitmap checkImg = new Bitmap(16, 16);
-            Bitmap mixedImg = new Bitmap(16, 16);
+            float dx = GetXScalingFactor();
+            float dy = GetYScalingFactor();
 
-            using (Bitmap img = new Bitmap(16, 16))
+            int w = Scale(16, dx);
+            int h = Scale(16, dy);
+
+            ImageList images = new System.Windows.Forms.ImageList();
+            Bitmap unCheckImg = new Bitmap(w,h);
+            Bitmap checkImg = new Bitmap(w, h);
+            Bitmap mixedImg = new Bitmap(w, h);
+
+            using (Bitmap img = new Bitmap(w, h))
             {
                 using (Graphics g = Graphics.FromImage(img))
                 {
@@ -1635,21 +1642,96 @@ namespace Zuby.ADGV
         /// <param name="h"></param>
         private void ResizeBox(int w, int h)
         {
+            float dx = GetXScalingFactor();
+            float dy = GetYScalingFactor();
+
             sortASCMenuItem.Width = w - 1;
+            sortASCMenuItem.Width = Convert.ToInt32(Convert.ToDouble(sortASCMenuItem.Width) * dx);
+            sortASCMenuItem.Height = Convert.ToInt32(Convert.ToDouble(sortASCMenuItem.Height) * dy);
+
             sortDESCMenuItem.Width = w - 1;
+            sortDESCMenuItem.Width = Convert.ToInt32(Convert.ToDouble(sortDESCMenuItem.Width) * dx);
+            sortDESCMenuItem.Height = Convert.ToInt32(Convert.ToDouble(sortDESCMenuItem.Height) * dy);
+            
             cancelSortMenuItem.Width = w - 1;
+            cancelSortMenuItem.Width = Convert.ToInt32(Convert.ToDouble(cancelSortMenuItem.Width) * dx);
+            cancelSortMenuItem.Height = Convert.ToInt32(Convert.ToDouble(cancelSortMenuItem.Height) * dy);
+
             cancelFilterMenuItem.Width = w - 1;
+            cancelFilterMenuItem.Width = Convert.ToInt32(Convert.ToDouble(cancelFilterMenuItem.Width) * dx);
+            cancelFilterMenuItem.Height = Convert.ToInt32(Convert.ToDouble(cancelFilterMenuItem.Height) * dy);
+                        
             customFilterMenuItem.Width = w - 1;
+            customFilterMenuItem.Width = Convert.ToInt32(Convert.ToDouble(customFilterMenuItem.Width) * dx);
+            customFilterMenuItem.Height = Convert.ToInt32(Convert.ToDouble(customFilterMenuItem.Height) * dy);
+
             customFilterLastFiltersListMenuItem.Width = w - 1;
+            customFilterLastFiltersListMenuItem.Width = Convert.ToInt32(Convert.ToDouble(customFilterLastFiltersListMenuItem.Width) * dx);
+            customFilterLastFiltersListMenuItem.Height = Convert.ToInt32(Convert.ToDouble(customFilterLastFiltersListMenuItem.Height) * dy);
+
             checkFilterListControlHost.Size = new Size(w - 35, h - 160 - 25);
+            checkFilterListControlHost.Width = Convert.ToInt32(Convert.ToDouble(checkFilterListControlHost.Width) * dx);
+            checkFilterListControlHost.Height = Convert.ToInt32(Convert.ToDouble(checkFilterListControlHost.Height) * dy);
+
             checkFilterListPanel.Size = new Size(w - 35, h - 160 - 25);
+            checkFilterListPanel.Width = Convert.ToInt32(Convert.ToDouble(checkFilterListPanel.Width) * dx);
+            checkFilterListPanel.Height = Convert.ToInt32(Convert.ToDouble(checkFilterListPanel.Height) * dy);
+
             checkTextFilterControlHost.Size = new Size(w - 35, h - 160 - 160 - 25 - 8);
-            checkList.Bounds = new Rectangle(4, 4, w - 35 - 8, h - 160 - 25 - 8);
+            checkTextFilterControlHost.Width = Convert.ToInt32(Convert.ToDouble(checkTextFilterControlHost.Width) * dx);
+            checkTextFilterControlHost.Height = Convert.ToInt32(Convert.ToDouble(checkTextFilterControlHost.Height) * dy);
+
+            checkList.Bounds = new Rectangle(Scale(4,dx), Scale(4,dy), Scale(w - 35 - 8,dx), Scale(h - 160 - 25 - 8,dy));
+            // checkList.ItemHeight = Convert.ToInt32(Convert.ToDouble(checkList.ItemHeight) * dy);
+
             checkFilterListButtonsControlHost.Size = new Size(w - 35, 24);
-            button_ok.Location = new Point(w - 35 - 164, 0);
-            button_cancel.Location = new Point(w - 35 - 79, 0);
-            resizeBoxControlHost.Margin = new Padding(w - 46, 0, 0, 0);
-            Size = new Size(w, h);
+            checkFilterListButtonsControlHost.Width = Convert.ToInt32(Convert.ToDouble(checkFilterListButtonsControlHost.Width) * dx);
+            checkFilterListButtonsControlHost.Height = Convert.ToInt32(Convert.ToDouble(checkFilterListButtonsControlHost.Height) * dy);
+
+            button_ok.Location = new Point(Scale(w - 35 - 164,dx), 0);
+            button_ok.Width = Convert.ToInt32(Convert.ToDouble(button_ok.Width) * dx);
+            button_ok.Height = Convert.ToInt32(Convert.ToDouble(button_ok.Height) * dy);
+
+            button_cancel.Location = new Point(Scale(w - 35 - 79,dx), 0);
+            button_cancel.Width = Convert.ToInt32(Convert.ToDouble(button_cancel.Width) * dx);
+            button_cancel.Height = Convert.ToInt32(Convert.ToDouble(button_cancel.Height) * dy);
+
+            resizeBoxControlHost.Width = Convert.ToInt32(Convert.ToDouble(resizeBoxControlHost.Width) * dx);
+            resizeBoxControlHost.Height = Convert.ToInt32(Convert.ToDouble(resizeBoxControlHost.Height) * dy);
+            resizeBoxControlHost.Margin = new Padding(Scale(w - 46,dx), 0, 0, 0);
+
+            Size = new Size(Scale(w,dx), Scale(h,dy));
+        }
+
+        private float GetXScalingFactor()
+        {
+            Graphics g = this.CreateGraphics();
+            try
+            {
+                return g.DpiX / 96.0f;
+            }
+            finally
+            {
+                g.Dispose();
+            }
+        }
+
+        private float GetYScalingFactor()
+        {
+            Graphics g = this.CreateGraphics();
+            try
+            {
+                return g.DpiY / 96.0f;
+            }
+            finally
+            {
+                g.Dispose();
+            }
+        }
+
+        private int Scale(int dimension, double factor)
+        {
+            return Convert.ToInt32(Convert.ToDouble(dimension) * factor);
         }
 
         /// <summary>

@@ -42,9 +42,10 @@ namespace Zuby.ADGV
             // button_ok
             // 
             this.button_ok.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.button_ok.Location = new System.Drawing.Point(40, 139);
+            this.button_ok.Location = new System.Drawing.Point(60, 214);
+            this.button_ok.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.button_ok.Name = "button_ok";
-            this.button_ok.Size = new System.Drawing.Size(75, 23);
+            this.button_ok.Size = new System.Drawing.Size(112, 35);
             this.button_ok.TabIndex = 0;
             this.button_ok.Text = "OK";
             this.button_ok.UseVisualStyleBackColor = true;
@@ -53,9 +54,10 @@ namespace Zuby.ADGV
             // button_cancel
             // 
             this.button_cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.button_cancel.Location = new System.Drawing.Point(121, 139);
+            this.button_cancel.Location = new System.Drawing.Point(182, 214);
+            this.button_cancel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.button_cancel.Name = "button_cancel";
-            this.button_cancel.Size = new System.Drawing.Size(75, 23);
+            this.button_cancel.Size = new System.Drawing.Size(112, 35);
             this.button_cancel.TabIndex = 1;
             this.button_cancel.Text = "Cancel";
             this.button_cancel.UseVisualStyleBackColor = true;
@@ -64,9 +66,10 @@ namespace Zuby.ADGV
             // label_columnName
             // 
             this.label_columnName.AutoSize = true;
-            this.label_columnName.Location = new System.Drawing.Point(4, 9);
+            this.label_columnName.Location = new System.Drawing.Point(6, 14);
+            this.label_columnName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label_columnName.Name = "label_columnName";
-            this.label_columnName.Size = new System.Drawing.Size(120, 13);
+            this.label_columnName.Size = new System.Drawing.Size(174, 20);
             this.label_columnName.TabIndex = 2;
             this.label_columnName.Text = "Show rows where value";
             // 
@@ -74,18 +77,20 @@ namespace Zuby.ADGV
             // 
             this.comboBox_filterType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_filterType.FormattingEnabled = true;
-            this.comboBox_filterType.Location = new System.Drawing.Point(7, 25);
+            this.comboBox_filterType.Location = new System.Drawing.Point(10, 38);
+            this.comboBox_filterType.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.comboBox_filterType.Name = "comboBox_filterType";
-            this.comboBox_filterType.Size = new System.Drawing.Size(189, 21);
+            this.comboBox_filterType.Size = new System.Drawing.Size(282, 28);
             this.comboBox_filterType.TabIndex = 3;
             this.comboBox_filterType.SelectedIndexChanged += new System.EventHandler(this.comboBox_filterType_SelectedIndexChanged);
             // 
             // label_and
             // 
             this.label_and.AutoSize = true;
-            this.label_and.Location = new System.Drawing.Point(7, 89);
+            this.label_and.Location = new System.Drawing.Point(10, 137);
+            this.label_and.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label_and.Name = "label_and";
-            this.label_and.Size = new System.Drawing.Size(26, 13);
+            this.label_and.Size = new System.Drawing.Size(38, 20);
             this.label_and.TabIndex = 6;
             this.label_and.Text = "And";
             this.label_and.Visible = false;
@@ -97,16 +102,17 @@ namespace Zuby.ADGV
             // 
             // FormCustomFilter
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.CancelButton = this.button_cancel;
-            this.ClientSize = new System.Drawing.Size(205, 169);
+            this.ClientSize = new System.Drawing.Size(308, 260);
             this.Controls.Add(this.label_and);
             this.Controls.Add(this.label_columnName);
             this.Controls.Add(this.comboBox_filterType);
             this.Controls.Add(this.button_cancel);
             this.Controls.Add(this.button_ok);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FormCustomFilter";
