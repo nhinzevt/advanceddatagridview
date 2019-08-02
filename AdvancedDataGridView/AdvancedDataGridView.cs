@@ -9,8 +9,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
 namespace Zuby.ADGV
@@ -22,9 +24,138 @@ namespace Zuby.ADGV
 
         #region public events
 
-        public event EventHandler SortStringChanged;
+        public class SortEventArgs : EventArgs
+        {
+            public string SortString { get; set; }
+            public bool Cancel { get; set; }
 
-        public event EventHandler FilterStringChanged;
+            public SortEventArgs()
+            {
+                SortString = null;
+                Cancel = false;
+            }
+        }
+
+        public class FilterEventArgs : EventArgs
+        {
+            public string FilterString { get; set; }
+            public bool Cancel { get; set; }
+
+            public FilterEventArgs()
+            {
+                FilterString = null;
+                Cancel = false;
+            }
+        }
+
+        public event EventHandler<SortEventArgs> SortStringChanged;
+
+        public event EventHandler<FilterEventArgs> FilterStringChanged;
+
+        #endregion
+
+
+        #region translations
+
+        /// <summary>
+        /// Available translation keys
+        /// </summary>
+        public enum TranslationKey
+        {
+            ADGVSortDateTimeASC,
+            ADGVSortDateTimeDESC,
+            ADGVSortBoolASC,
+            ADGVSortBoolDESC,
+            ADGVSortNumASC,
+            ADGVSortNumDESC,
+            ADGVSortTextASC,
+            ADGVSortTextDESC,
+            ADGVAddCustomFilter,
+            ADGVCustomFilter,
+            ADGVClearFilter,
+            ADGVClearSort,
+            ADGVButtonFilter,
+            ADGVButtonUndofilter,
+            ADGVNodeSelectAll,
+            ADGVNodeSelectEmpty,
+            ADGVNodeSelectTrue,
+            ADGVNodeSelectFalse,
+            ADGVFilterChecklistDisable,
+            ADGVEquals,
+            ADGVDoesNotEqual,
+            ADGVEarlierThan,
+            ADGVEarlierThanOrEqualTo,
+            ADGVLaterThan,
+            ADGVLaterThanOrEqualTo,
+            ADGVBetween,
+            ADGVGreaterThan,
+            ADGVGreaterThanOrEqualTo,
+            ADGVLessThan,
+            ADGVLessThanOrEqualTo,
+            ADGVBeginsWith,
+            ADGVDoesNotBeginWith,
+            ADGVEndsWith,
+            ADGVDoesNotEndWith,
+            ADGVContains,
+            ADGVDoesNotContain,
+            ADGVInvalidValue,
+            ADGVFilterStringDescription,
+            ADGVFormTitle,
+            ADGVLabelColumnNameText,
+            ADGVLabelAnd,
+            ADGVButtonOk,
+            ADGVButtonCancel
+        }
+
+        /// <summary>
+        /// Internationalization strings
+        /// </summary>
+        public static Dictionary<string, string> Translations = new Dictionary<string, string>()
+        {
+            { TranslationKey.ADGVSortDateTimeASC.ToString(), "Sort Oldest to Newest" },
+            { TranslationKey.ADGVSortDateTimeDESC.ToString(), "Sort Newest to Oldest" },
+            { TranslationKey.ADGVSortBoolASC.ToString(), "Sort by False/True" },
+            { TranslationKey.ADGVSortBoolDESC.ToString(), "Sort by True/False" },
+            { TranslationKey.ADGVSortNumASC.ToString(), "Sort Smallest to Largest" },
+            { TranslationKey.ADGVSortNumDESC.ToString(), "Sort Largest to Smallest" },
+            { TranslationKey.ADGVSortTextASC.ToString(), "Sort А to Z" },
+            { TranslationKey.ADGVSortTextDESC.ToString(), "Sort Z to A" },
+            { TranslationKey.ADGVAddCustomFilter.ToString(), "Add a Custom Filter" },
+            { TranslationKey.ADGVCustomFilter.ToString(), "Custom Filter" },
+            { TranslationKey.ADGVClearFilter.ToString(), "Clear Filter" },
+            { TranslationKey.ADGVClearSort.ToString(), "Clear Sort" },
+            { TranslationKey.ADGVButtonFilter.ToString(), "Filter" },
+            { TranslationKey.ADGVButtonUndofilter.ToString(), "Cancel" },
+            { TranslationKey.ADGVNodeSelectAll.ToString(), "(Select All)" },
+            { TranslationKey.ADGVNodeSelectEmpty.ToString(), "(Blanks)" },
+            { TranslationKey.ADGVNodeSelectTrue.ToString(), "True" },
+            { TranslationKey.ADGVNodeSelectFalse.ToString(), "False" },
+            { TranslationKey.ADGVFilterChecklistDisable.ToString(), "Filter list is disabled" },
+            { TranslationKey.ADGVEquals.ToString(), "equals" },
+            { TranslationKey.ADGVDoesNotEqual.ToString(), "does not equal" },
+            { TranslationKey.ADGVEarlierThan.ToString(), "earlier than" },
+            { TranslationKey.ADGVEarlierThanOrEqualTo.ToString(), "earlier than or equal to" },
+            { TranslationKey.ADGVLaterThan.ToString(), "later than"},
+            { TranslationKey.ADGVLaterThanOrEqualTo.ToString(), "later than or equal to" },
+            { TranslationKey.ADGVBetween.ToString(), "between" },
+            { TranslationKey.ADGVGreaterThan.ToString(), "greater than" },
+            { TranslationKey.ADGVGreaterThanOrEqualTo.ToString(), "greater than or equal to" },
+            { TranslationKey.ADGVLessThan.ToString(), "less than" },
+            { TranslationKey.ADGVLessThanOrEqualTo.ToString(), "less than or equal to" },
+            { TranslationKey.ADGVBeginsWith.ToString(), "begins with" },
+            { TranslationKey.ADGVDoesNotBeginWith.ToString(), "does not begin with" },
+            { TranslationKey.ADGVEndsWith.ToString(), "ends with" },
+            { TranslationKey.ADGVDoesNotEndWith.ToString(), "does not end with" },
+            { TranslationKey.ADGVContains.ToString(), "contains" },
+            { TranslationKey.ADGVDoesNotContain.ToString(), "does not contain" },
+            { TranslationKey.ADGVInvalidValue.ToString(), "Invalid Value" },
+            { TranslationKey.ADGVFilterStringDescription.ToString(), "Show rows where value {0} \"{1}\"" },
+            { TranslationKey.ADGVFormTitle.ToString(), "Custom Filter" },
+            { TranslationKey.ADGVLabelColumnNameText.ToString(), "Show rows where value" },
+            { TranslationKey.ADGVLabelAnd.ToString(), "And" },
+            { TranslationKey.ADGVButtonOk.ToString(), "OK" },
+            { TranslationKey.ADGVButtonCancel.ToString(), "Cancel" }
+        };
 
         #endregion
 
@@ -48,7 +179,85 @@ namespace Zuby.ADGV
         /// AdvancedDataGridView constructor
         /// </summary>
         public AdvancedDataGridView()
+        { }
+
+        #endregion
+
+
+        #region translations methods
+
+        /// <summary>
+        /// Set translation dictionary
+        /// </summary>
+        /// <param name="translations"></param>
+        public static void SetTranslations(IDictionary<string, string> translations)
         {
+            //set localization strings
+            if (translations != null)
+            {
+                foreach (KeyValuePair<string, string> translation in translations)
+                {
+                    if (Translations.ContainsKey(translation.Key))
+                        Translations[translation.Key] = translation.Value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get translation dictionary
+        /// </summary>
+        /// <returns></returns>
+        public static IDictionary<string, string> GetTranslations()
+        {
+            return Translations;
+        }
+
+        /// <summary>
+        /// Load translations from file
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        public static IDictionary<string, string> LoadTranslationsFromFile(string filename)
+        {
+            IDictionary<string, string> ret = new Dictionary<string, string>();
+
+            if (!String.IsNullOrEmpty(filename))
+            {
+                //deserialize the file
+                try
+                {
+                    string jsontext = File.ReadAllText(filename);
+                    Dictionary<string, string> translations = new JavaScriptSerializer().Deserialize<Dictionary<string, string>>(jsontext);
+                    foreach (KeyValuePair<string, string> translation in translations)
+                    {
+                        if (!ret.ContainsKey(translation.Key) && Translations.ContainsKey(translation.Key))
+                            ret.Add(translation.Key, translation.Value);
+                    }
+                }
+                catch { }
+            }
+
+            //add default translations if not in files
+            foreach (KeyValuePair<string, string> translation in GetTranslations())
+            {
+                if (!ret.ContainsKey(translation.Key))
+                    ret.Add(translation.Key, translation.Value);
+            }
+
+            return ret;
+        }
+
+        #endregion
+
+
+        #region Helper methods
+
+        /// <summary>
+        /// Set AdvancedDataGridView the Double Buffered
+        /// </summary>
+        public void SetDoubleBuffered()
+        {
+            this.DoubleBuffered = true;
         }
 
         #endregion
@@ -87,7 +296,6 @@ namespace Zuby.ADGV
         /// <param name="column"></param>
         public void EnableFilterAndSort(DataGridViewColumn column)
         {
-            //this.DataSource = SortString;
             if (Columns.Contains(column))
             {
                 ColumnHeaderCell cell = column.HeaderCell as ColumnHeaderCell;
@@ -107,9 +315,9 @@ namespace Zuby.ADGV
                 {
                     column.SortMode = DataGridViewColumnSortMode.Programmatic;
                     cell = new ColumnHeaderCell(column.HeaderCell, true);
-                    cell.SortChanged += new ColumnHeaderCellEventHandler(cell_SortChanged);
-                    cell.FilterChanged += new ColumnHeaderCellEventHandler(cell_FilterChanged);
-                    cell.FilterPopup += new ColumnHeaderCellEventHandler(cell_FilterPopup);
+                    cell.SortChanged += new ColumnHeaderCellEventHandler(Cell_SortChanged);
+                    cell.FilterChanged += new ColumnHeaderCellEventHandler(Cell_FilterChanged);
+                    cell.FilterPopup += new ColumnHeaderCellEventHandler(Cell_FilterPopup);
                     column.MinimumWidth = cell.MinimumSize.Width;
                     if (ColumnHeadersHeight < cell.MinimumSize.Height)
                         ColumnHeadersHeight = cell.MinimumSize.Height;
@@ -129,6 +337,51 @@ namespace Zuby.ADGV
                 EnableFilterAndSort(column);
             else
                 DisableFilterAndSort(column);
+        }
+
+        /// <summary>
+        /// Disable a Filter checklist on a DataGridViewColumn
+        /// </summary>
+        /// <param name="column"></param>
+        public void DisableFilterChecklist(DataGridViewColumn column)
+        {
+            if (Columns.Contains(column))
+            {
+                ColumnHeaderCell cell = column.HeaderCell as ColumnHeaderCell;
+                if (cell != null)
+                {
+                    cell.SetFilterChecklistEnabled(false);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Enable a Filter checklist on a DataGridViewColumn
+        /// </summary>
+        /// <param name="column"></param>
+        public void EnableFilterChecklist(DataGridViewColumn column)
+        {
+            if (Columns.Contains(column))
+            {
+                ColumnHeaderCell cell = column.HeaderCell as ColumnHeaderCell;
+                if (cell != null)
+                {
+                    cell.SetFilterChecklistEnabled(true);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Enabled or disable Filter checklist capabilities on a DataGridViewColumn
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="enabled"></param>
+        public void SetFilterChecklistEnabled(DataGridViewColumn column, bool enabled)
+        {
+            if (enabled)
+                EnableFilterChecklist(column);
+            else
+                DisableFilterChecklist(column);
         }
 
         /// <summary>
@@ -210,7 +463,7 @@ namespace Zuby.ADGV
         {
             get
             {
-                return _sortString == null ? "" : _sortString;
+                return (!String.IsNullOrEmpty(_sortString) ? _sortString : "");
             }
             private set
             {
@@ -219,9 +472,30 @@ namespace Zuby.ADGV
                 {
                     _sortString = value;
 
-                    if (SortStringChanged != null)
-                        SortStringChanged(this, new EventArgs());
+                    TriggerSortStringChanged();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Trigger the sort string changed method
+        /// </summary>
+        public void TriggerSortStringChanged()
+        {
+            //call event handler if one is attached
+            SortEventArgs sortEventArgs = new SortEventArgs
+            {
+                SortString = _sortString,
+                Cancel = false
+            };
+            if (SortStringChanged != null)
+                SortStringChanged.Invoke(this, sortEventArgs);
+            //sort datasource
+            if (sortEventArgs.Cancel == false)
+            {
+                BindingSource datasource = this.DataSource as BindingSource;
+                if (datasource != null)
+                    datasource.Sort = sortEventArgs.SortString;
             }
         }
 
@@ -304,7 +578,7 @@ namespace Zuby.ADGV
         {
             get
             {
-                return _filterString == null ? "" : _filterString;
+                return (!String.IsNullOrEmpty(_filterString) ? _filterString : "");
             }
             private set
             {
@@ -312,9 +586,31 @@ namespace Zuby.ADGV
                 if (old != _filterString)
                 {
                     _filterString = value;
-                    if (FilterStringChanged != null)
-                        FilterStringChanged(this, new EventArgs());
+
+                    TriggerFilterStringChanged();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Trigger the filter string changed method
+        /// </summary>
+        public void TriggerFilterStringChanged()
+        {
+            //call event handler if one is attached
+            FilterEventArgs filterEventArgs = new FilterEventArgs
+            {
+                FilterString = _filterString,
+                Cancel = false
+            };
+            if (FilterStringChanged != null)
+                FilterStringChanged.Invoke(this, filterEventArgs);
+            //sort datasource
+            if (filterEventArgs.Cancel == false)
+            {
+                BindingSource datasource = this.DataSource as BindingSource;
+                if (datasource != null)
+                    datasource.Filter = filterEventArgs.FilterString;
             }
         }
 
@@ -389,6 +685,34 @@ namespace Zuby.ADGV
         public void CleanFilter()
         {
             CleanFilter(true);
+        }
+
+        /// <summary>
+        /// Set the text filter search nodes behaviour
+        /// </summary>
+        public void SetTextFilterRemoveNodesOnSearch(DataGridViewColumn column, bool enabled)
+        {
+            if (Columns.Contains(column))
+            {
+                ColumnHeaderCell cell = column.HeaderCell as ColumnHeaderCell;
+                if (cell != null)
+                    cell.DoesTextFilterRemoveNodesOnSearch = enabled;
+            }
+        }
+
+        /// <summary>
+        /// Get the text filter search nodes behaviour
+        /// </summary>
+        public Nullable<bool> GetTextFilterRemoveNodesOnSearch(DataGridViewColumn column)
+        {
+            Nullable<bool> ret = null;
+            if (Columns.Contains(column))
+            {
+                ColumnHeaderCell cell = column.HeaderCell as ColumnHeaderCell;
+                if (cell != null)
+                    ret = cell.DoesTextFilterRemoveNodesOnSearch;
+            }
+            return ret;
         }
 
         #endregion
@@ -488,9 +812,9 @@ namespace Zuby.ADGV
         {
             e.Column.SortMode = DataGridViewColumnSortMode.Programmatic;
             ColumnHeaderCell cell = new ColumnHeaderCell(e.Column.HeaderCell, FilterAndSortEnabled);
-            cell.SortChanged += new ColumnHeaderCellEventHandler(cell_SortChanged);
-            cell.FilterChanged += new ColumnHeaderCellEventHandler(cell_FilterChanged);
-            cell.FilterPopup += new ColumnHeaderCellEventHandler(cell_FilterPopup);
+            cell.SortChanged += new ColumnHeaderCellEventHandler(Cell_SortChanged);
+            cell.FilterChanged += new ColumnHeaderCellEventHandler(Cell_FilterChanged);
+            cell.FilterPopup += new ColumnHeaderCellEventHandler(Cell_FilterPopup);
             e.Column.MinimumWidth = cell.MinimumSize.Width;
             if (ColumnHeadersHeight < cell.MinimumSize.Height)
                 ColumnHeadersHeight = cell.MinimumSize.Height;
@@ -512,9 +836,9 @@ namespace Zuby.ADGV
             ColumnHeaderCell cell = e.Column.HeaderCell as ColumnHeaderCell;
             if (cell != null)
             {
-                cell.SortChanged -= cell_SortChanged;
-                cell.FilterChanged -= cell_FilterChanged;
-                cell.FilterPopup -= cell_FilterPopup;
+                cell.SortChanged -= Cell_SortChanged;
+                cell.FilterChanged -= Cell_FilterChanged;
+                cell.FilterPopup -= Cell_FilterPopup;
             }
             base.OnColumnRemoved(e);
         }
@@ -598,7 +922,7 @@ namespace Zuby.ADGV
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void cell_FilterPopup(object sender, ColumnHeaderCellEventArgs e)
+        private void Cell_FilterPopup(object sender, ColumnHeaderCellEventArgs e)
         {
             if (Columns.Contains(e.Column))
             {
@@ -625,7 +949,7 @@ namespace Zuby.ADGV
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void cell_FilterChanged(object sender, ColumnHeaderCellEventArgs e)
+        private void Cell_FilterChanged(object sender, ColumnHeaderCellEventArgs e)
         {
             if (Columns.Contains(e.Column))
             {
@@ -687,7 +1011,7 @@ namespace Zuby.ADGV
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void cell_SortChanged(object sender, ColumnHeaderCellEventArgs e)
+        private void Cell_SortChanged(object sender, ColumnHeaderCellEventArgs e)
         {
             if (Columns.Contains(e.Column))
             {
