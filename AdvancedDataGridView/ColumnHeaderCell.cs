@@ -51,6 +51,7 @@ namespace Zuby.ADGV
         /// <param name="oldCell"></param>
         /// <param name="filterEnabled"></param>
         public ColumnHeaderCell(DataGridViewColumnHeaderCell oldCell, bool filterEnabled)
+            : base()
         {
             Tag = oldCell.Tag;
             ErrorText = oldCell.ErrorText;
@@ -62,7 +63,6 @@ namespace Zuby.ADGV
             _filterEnabled = filterEnabled;
 
             ColumnHeaderCell oldCellt = oldCell as ColumnHeaderCell;
-
             if (oldCellt != null && oldCellt.MenuStrip != null)
             {
                 MenuStrip = oldCellt.MenuStrip;
@@ -71,26 +71,27 @@ namespace Zuby.ADGV
                 _filterButtonOver = oldCellt._filterButtonOver;
                 _filterButtonOffsetBounds = oldCellt._filterButtonOffsetBounds;
                 _filterButtonImageBounds = oldCellt._filterButtonImageBounds;
-                MenuStrip.FilterChanged += new EventHandler(menuStrip_FilterChanged);
-                MenuStrip.SortChanged += new EventHandler(menuStrip_SortChanged);
+                MenuStrip.FilterChanged += new EventHandler(MenuStrip_FilterChanged);
+                MenuStrip.SortChanged += new EventHandler(MenuStrip_SortChanged);
             }
             else
             {
                 MenuStrip = new MenuStrip(oldCell.OwningColumn.ValueType);
-                MenuStrip.FilterChanged += new EventHandler(menuStrip_FilterChanged);
-                MenuStrip.SortChanged += new EventHandler(menuStrip_SortChanged);
+                MenuStrip.FilterChanged += new EventHandler(MenuStrip_FilterChanged);
+                MenuStrip.SortChanged += new EventHandler(MenuStrip_SortChanged);
             }
 
             IsFilterDateAndTimeEnabled = FilterDateAndTimeDefaultEnabled;
             IsSortEnabled = true;
             IsFilterEnabled = true;
+            IsFilterChecklistEnabled = true;
         }
         ~ColumnHeaderCell()
         {
             if (MenuStrip != null)
             {
-                MenuStrip.FilterChanged -= menuStrip_FilterChanged;
-                MenuStrip.SortChanged -= menuStrip_SortChanged;
+                MenuStrip.FilterChanged -= MenuStrip_FilterChanged;
+                MenuStrip.SortChanged -= MenuStrip_SortChanged;
             }
         }
 
@@ -136,12 +137,12 @@ namespace Zuby.ADGV
                     bool refreshed = false;
                     if (MenuStrip.FilterString.Length > 0)
                     {
-                        menuStrip_FilterChanged(this, new EventArgs());
+                        MenuStrip_FilterChanged(this, new EventArgs());
                         refreshed = true;
                     }
                     if (MenuStrip.SortString.Length > 0)
                     {
-                        menuStrip_SortChanged(this, new EventArgs());
+                        MenuStrip_SortChanged(this, new EventArgs());
                         refreshed = true;
                     }
                     if (!refreshed)
@@ -313,6 +314,21 @@ namespace Zuby.ADGV
         }
 
         /// <summary>
+        /// Get or Set the Filter enabled status
+        /// </summary>
+        public bool IsFilterChecklistEnabled
+        {
+            get
+            {
+                return MenuStrip.IsFilterChecklistEnabled;
+            }
+            set
+            {
+                MenuStrip.IsFilterChecklistEnabled = value;
+            }
+        }
+
+        /// <summary>
         /// Get or Set the FilterDateAndTime enabled status
         /// </summary>
         public bool IsFilterDateAndTimeEnabled
@@ -343,6 +359,21 @@ namespace Zuby.ADGV
         }
 
         /// <summary>
+        /// Set the text filter search nodes behaviour
+        /// </summary>
+        public bool DoesTextFilterRemoveNodesOnSearch
+        {
+            get
+            {
+                return MenuStrip.DoesTextFilterRemoveNodesOnSearch;
+            }
+            set
+            {
+                MenuStrip.DoesTextFilterRemoveNodesOnSearch = value;
+            }
+        }
+
+        /// <summary>
         /// Enabled or disable Sort capabilities
         /// </summary>
         /// <param name="enabled"></param>
@@ -369,6 +400,19 @@ namespace Zuby.ADGV
         }
 
         /// <summary>
+        /// Enable or disable Filter checklist capabilities
+        /// </summary>
+        /// <param name="enabled"></param>
+        public void SetFilterChecklistEnabled(bool enabled)
+        {
+            if (MenuStrip != null)
+            {
+                MenuStrip.IsFilterChecklistEnabled = enabled;
+                MenuStrip.SetFilterChecklistEnabled(enabled);
+            }
+        }
+
+        /// <summary>
         /// Enable or disable Text filter on checklist remove node mode
         /// </summary>
         /// <param name="enabled"></param>
@@ -390,7 +434,7 @@ namespace Zuby.ADGV
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void menuStrip_FilterChanged(object sender, EventArgs e)
+        private void MenuStrip_FilterChanged(object sender, EventArgs e)
         {
             RefreshImage();
             RepaintCell();
@@ -403,7 +447,7 @@ namespace Zuby.ADGV
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void menuStrip_SortChanged(object sender, EventArgs e)
+        private void MenuStrip_SortChanged(object sender, EventArgs e)
         {
             RefreshImage();
             RepaintCell();

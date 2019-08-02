@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Zuby.ADGV;
 
 namespace AdvancedDataGridViewSample
 {
@@ -16,9 +17,35 @@ namespace AdvancedDataGridViewSample
         private SortedDictionary<int, string> _filtersaved = new SortedDictionary<int, string>();
         private SortedDictionary<int, string> _sortsaved = new SortedDictionary<int, string>();
 
+        private bool _testtranslations = false;
+        private bool _testtranslationsFromFile = false;
+
         public FormMain()
         {
             InitializeComponent();
+
+            //set localization strings
+            Dictionary<string, string> translations = new Dictionary<string, string>();
+            foreach (KeyValuePair<string, string> translation in AdvancedDataGridView.Translations)
+            {
+                if (!translations.ContainsKey(translation.Key))
+                    translations.Add(translation.Key, "." + translation.Value);
+            }
+            foreach (KeyValuePair<string, string> translation in AdvancedDataGridViewSearchToolBar.Translations)
+            {
+                if (!translations.ContainsKey(translation.Key))
+                    translations.Add(translation.Key, "." + translation.Value);
+            }
+            if (_testtranslations)
+            {
+                AdvancedDataGridView.SetTranslations(translations);
+                AdvancedDataGridViewSearchToolBar.SetTranslations(translations);
+            }
+            if (_testtranslationsFromFile)
+            {
+                AdvancedDataGridView.SetTranslations(AdvancedDataGridView.LoadTranslationsFromFile("lang.json"));
+                AdvancedDataGridViewSearchToolBar.SetTranslations(AdvancedDataGridViewSearchToolBar.LoadTranslationsFromFile("lang.json"));
+            }
 
             //set filter and sort saved
             _filtersaved.Add(0, "");
@@ -40,6 +67,7 @@ namespace AdvancedDataGridViewSample
             bindingSource_main.DataSource = _dataSet;
 
             //initialize datagridview
+            advancedDataGridView_main.SetDoubleBuffered();
             advancedDataGridView_main.DataSource = bindingSource_main;
 
             //set bindingsource
@@ -108,20 +136,41 @@ namespace AdvancedDataGridViewSample
             advancedDataGridView_main.DisableFilterAndSort(advancedDataGridView_main.Columns["int"]);
             advancedDataGridView_main.SetFilterDateAndTimeEnabled(advancedDataGridView_main.Columns["datetime"], true);
             advancedDataGridView_main.SetSortEnabled(advancedDataGridView_main.Columns["guid"], false);
+            advancedDataGridView_main.SetFilterChecklistEnabled(advancedDataGridView_main.Columns["guid"], false);
             advancedDataGridView_main.SortDESC(advancedDataGridView_main.Columns["double"]);
+            advancedDataGridView_main.SetTextFilterRemoveNodesOnSearch(advancedDataGridView_main.Columns["double"], false);
             advancedDataGridView_main.SetChecklistTextFilterRemoveNodesOnSearchMode(advancedDataGridView_main.Columns["decimal"], false);
         }
 
-        private void advancedDataGridView_main_FilterStringChanged(object sender, EventArgs e)
+        private void advancedDataGridView_main_FilterStringChanged(object sender, Zuby.ADGV.AdvancedDataGridView.FilterEventArgs e)
         {
-            bindingSource_main.Filter = advancedDataGridView_main.FilterString;
-            textBox_filter.Text = bindingSource_main.Filter;
+            //eventually set the FilterString here
+            //if e.Cancel is set to true one have to update the datasource here using
+            //bindingSource_main.Filter = advancedDataGridView_main.FilterString;
+            //otherwise it will be updated by the component
+
+            //sample use of the override string filter
+            string stringcolumnfilter = textBox_strfilter.Text;
+            if (!String.IsNullOrEmpty(stringcolumnfilter))
+                e.FilterString += (!String.IsNullOrEmpty(e.FilterString) ? " AND " : "") + String.Format("string LIKE '%{0}%'", stringcolumnfilter.Replace("'", "''"));
+
+            textBox_filter.Text = e.FilterString;
         }
 
-        private void advancedDataGridView_main_SortStringChanged(object sender, EventArgs e)
+        private void advancedDataGridView_main_SortStringChanged(object sender, Zuby.ADGV.AdvancedDataGridView.SortEventArgs e)
         {
-            bindingSource_main.Sort = advancedDataGridView_main.SortString;
-            textBox_sort.Text = bindingSource_main.Sort;
+            //eventually set the SortString here
+            //if e.Cancel is set to true one have to update the datasource here
+            //bindingSource_main.Sort = advancedDataGridView_main.SortString;
+            //otherwise it will be updated by the component
+
+            textBox_sort.Text = e.SortString;
+        }
+
+        private void textBox_strfilter_TextChanged(object sender, EventArgs e)
+        {
+            //trigger the filter string changed function when text is changed
+            advancedDataGridView_main.TriggerFilterStringChanged();
         }
 
         private void bindingSource_main_ListChanged(object sender, ListChangedEventArgs e)
@@ -191,6 +240,5 @@ namespace AdvancedDataGridViewSample
             if (c != null)
                 advancedDataGridView_main.CurrentCell = c;
         }
-
     }
 }
